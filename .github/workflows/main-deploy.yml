@@ -5,9 +5,9 @@ on:
         branches: 
             - main
         paths:
-            - ./.github/workflows/**
-            - ./deploy/**
-            - ./services/**
+            - .github/workflows/**
+            - deploy/**
+            - services/**
     
     workflow_dispatch:
 
@@ -31,10 +31,10 @@ jobs:
               with:
                   filters: |
                       web_has_changed: 
-                          - './services/web/**'
+                          - 'services/web/**'
                       
                       api_has_changed:
-                          - './services/api/**'
+                          - 'services/api/**'
 
     detect-changes-api:
         needs: detect-changes-global
@@ -61,16 +61,16 @@ jobs:
               # with:
               #filters: |
                 # login-service_has_changed:
-                    # - './services/api/login-service/**'
+                    # - 'services/api/login-service/**'
 
                 # register-service_has_changed:
-                    # - './services/api/register-service/**'
+                    # - 'services/api/register-service/**'
 
                 # video-streaming-service_has_changed:
-                    # - './services/api/video-streaming-service/**'
+                    # - 'services/api/video-streaming-service/**'
 
                 # websocket-handler-service_has_changed:
-                    # - './services/api/websocket-handler-service/**'
+                    # - 'services/api/websocket-handler-service/**'
 
     deploy_web:
         needs: detect-changes-global

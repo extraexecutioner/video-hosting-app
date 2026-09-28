@@ -5,15 +5,15 @@ on:
         branches:
             - frontend/**
         paths:
-            - ./services/web/**
-            - ./.github/worklows/frontend-branches-ci.yml
+            - services/web/**
+            - .github/worklows/frontend-branches-ci.yml
     
     pull_request:
         branches:
             - frontend/**
         paths:
-            - ./services/web/**
-            - ./.github/worklows/frontend-branches-ci.yml
+            - services/web/**
+            - .github/worklows/frontend-branches-ci.yml
 
     workflow_dispatch:
 
@@ -49,7 +49,7 @@ jobs:
 
         defaults:
             run:
-                working-directory: ./services/web
+                working-directory: services/web
         
         steps:
             - name: Clone Repository
