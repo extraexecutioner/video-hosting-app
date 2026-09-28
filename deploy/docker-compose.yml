@@ -37,7 +37,7 @@ services:
                     memory: 8M
 
     frontend-service:
-        build: ../services/web
+        image: frontend-service-image
         networks:
             - frontend-service-network
         volumes:

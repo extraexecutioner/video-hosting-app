@@ -104,5 +104,5 @@ jobs:
 
             - name: Deploy
               run: |
-                  docker compose build frontend-service
+                  docker build -t frontend-service .
                   docker compose up -d frontend-service
