@@ -2,7 +2,7 @@ name: video-hosting-app
 
 services:
     nginx-proxy-service:
-        image: nginx:1.30.5-alpine-slim
+        image: dh-mirror.gitverse.ru/nginx:1.30.5-alpine-slim
         networks:
             - frontend-service-network
         ports:
