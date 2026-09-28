@@ -1,0 +1,108 @@
+name: Deploy Of Frontend/Backend
+
+on:
+    push: 
+        branches: 
+            - main
+        paths:
+            - ./.github/workflows/**
+            - ./deploy/**
+            - ./services/**
+    
+    workflow_dispatch:
+
+jobs:
+    detect-changes-global:
+        runs-on: ubuntu-latest
+
+        outputs:
+            web_has_changed: ${{ steps.filter.outputs.web_has_changed }}
+            api_has_changed: ${{ steps.filter.outputs.api_has_changed }}
+
+        steps:
+            - name: Clone Repository
+              uses: actions/checkout@v4
+              with:
+                  fetch-depth: 2
+            
+            - name: Check Changes
+              uses: dorny/paths-filter@v3
+              id: filter
+              with:
+                  filters: |
+                      web_has_changed: 
+                          - './services/web/**'
+                      
+                      api_has_changed:
+                          - './services/api/**'
+
+    detect-changes-api:
+        needs: detect-changes-global
+        if: ${{ needs.detect-changes-global.outputs.api_has_changed == 'true' }}
+
+        runs-on: ubuntu-latest
+
+        # outputs:
+            # login-service_has_changed: ${{ steps.filter.outputs.login-service_has_changed }}
+            # register-service_has_changed: ${{ steps.filter.outputs.register-service_has_changed }}
+
+            # video-streaming-service_has_changed: ${{ steps.filter.outputs.video-streaming-service_has_changed }}
+            # websocket-handler-service_has_changed: ${{ steps.filter.outputs.websocket-handler-service_has_changed }}
+
+        steps:
+            - name: Clone Repository
+              uses: actions/checkout@v4
+              with:
+                  fetch-depth: 2
+              
+            #- name: Check Api Changes
+              #uses: dorny/paths-filter@v3
+              #id: filter
+              # with:
+              #filters: |
+                # login-service_has_changed:
+                    # - './services/api/login-service/**'
+
+                # register-service_has_changed:
+                    # - './services/api/register-service/**'
+
+                # video-streaming-service_has_changed:
+                    # - './services/api/video-streaming-service/**'
+
+                # websocket-handler-service_has_changed:
+                    # - './services/api/websocket-handler-service/**'
+
+    deploy_web:
+        needs: detect-changes-global
+        if: ${{ needs.detect-changes-global.web_has_changed == 'true' }}
+
+        runs-on: self-hosted
+
+        defaults:
+            run:
+                working-directory: ./services/web
+
+        steps:
+            - name: Clone Repository
+              uses: actions/checkout@v4
+            
+            - name: Setup node
+              uses: actions/setup-node@v4
+              with:
+                  node-version: 22.12.0
+                  cache: npm
+                  cache-dependency-path: ./services/web/package-lock.json
+
+            - name: Install Dependencies
+              run: npm ci
+
+            - name: Npm Audit
+              run: npm audit --audit-level=high
+            
+            - name: Linter Check
+              run: npm run lint
+
+            - name: Deploy
+              run: |
+                  docker compose build frontend-service
+                  docker compose up -d frontend-service
