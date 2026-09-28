@@ -1,0 +1,71 @@
+name: Frontend-Branches-CI
+
+on:
+    push:
+        branches:
+            - frontend/**
+        paths:
+            - ./services/web/**
+            - ./.github/worklows/frontend-branches-ci.yml
+    
+    pull_request:
+        branches:
+            - frontend/**
+        paths:
+            - ./services/web/**
+            - ./.github/worklows/frontend-branches-ci.yml
+
+    workflow_dispatch:
+
+jobs:
+    detect-file-changes:
+        runs-on: ubuntu-latest
+
+        defaults:
+            run:
+                working-directory: ./services/web
+
+        outputs:
+            web_changed: ${{ steps.filter.outputs.web_changed }}
+
+        steps:
+            - name: Clone Repository
+              uses: actions/checkout@v4
+              with:
+                  fetch-depth: 2
+
+            - name: Detect Changes
+              uses: dorny/paths-filter@v3
+              id: filter
+              with:
+                  filters: |
+                      web_changed:
+                          - 'services/web/**'
+
+    ci-check:
+        needs: detect-file-changes
+        if: ${{ needs.detect-file-changes.outputs.web_changed == 'true' }}
+        runs-on: ubuntu-latest
+
+        defaults:
+            run:
+                working-directory: ./services/web
+        
+        steps:
+            - name: Clone Repository
+              uses: actions/checkout@v4
+
+            - name: Setup Node
+              uses: actions/setup-node@v4
+              with:
+                  node-version: '22'
+                  cache: 'npm'
+
+            - name: Npm Audit Check up
+              run: npm audit --audit-level=high
+
+            - name: Linter Check up
+              run: npm run lint
+
+            - name: Build
+              run: npm run build
