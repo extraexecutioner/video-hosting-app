@@ -101,6 +101,26 @@ jobs:
             - name: Linter Check
               run: cd services/web && npm run lint
 
+            - name: Ch1
+              run: |
+                echo "=== 1. Проверяем алиасы и типы команд ==="
+                  type docker
+                  type docker-compose || echo "docker-compose not found"
+                  alias | grep docker || echo "No docker aliases"
+
+                  echo "=== 2. Проверяем реальную версию и плагины ==="
+                  docker version
+                  docker info | grep -i "plugins" -A 5 || echo "No plugins info"
+                  docker compose version || echo "docker compose failed"
+
+                  echo "=== 3. Ищем, где физически лежат файлы плагина ==="
+                  ls -la /usr/libexec/docker/cli-plugins/ || echo "No dir in /usr/libexec"
+                  ls -la /usr/local/lib/docker/cli-plugins/ || echo "No dir in /usr/local/lib"
+                  ls -la ~/.docker/cli-plugins/ || echo "No dir in ~/.docker"
+
+                  echo "=== 4. Проверяем, не Podman ли это на самом деле ==="
+                  podman --version || echo "Not podman"
+
             - name: Deploy
               run: |
                   docker build -t frontend-service ./services/web
