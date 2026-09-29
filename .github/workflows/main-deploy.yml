@@ -108,4 +108,4 @@ jobs:
             - name: Deploy
               run: |
                   docker build -t frontend-service .
-                  cd ../../deploy && docker compose up --build --no-deps -d frontend-service
+                  cd ../../deploy && docker-compose up --no-deps -d frontend-service
