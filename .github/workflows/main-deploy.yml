@@ -74,7 +74,7 @@ jobs:
 
     deploy_web:
         needs: detect-changes-global
-        # if: ${{ needs.detect-changes-global.web_has_changed == 'true' }}
+        if: ${{ needs.detect-changes-global.web_has_changed == 'true' }}
 
         runs-on: self-hosted
 
@@ -82,10 +82,7 @@ jobs:
             run:
                 working-directory: ./services/web
 
-        steps:
-            - name: Changed
-              run: echo needs.detect-changes-global.web_has_changed == 'true'
-              
+        steps: 
             - name: Clone Repository
               uses: actions/checkout@v4
             
