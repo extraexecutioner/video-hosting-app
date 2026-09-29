@@ -112,4 +112,5 @@ jobs:
                   docker run -d \
                         --name frontend-service \
                         --restart always \
+                        -- network video-hosting-app_frontend-service-network \
                         frontend-service-image:latest
