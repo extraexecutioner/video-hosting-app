@@ -108,4 +108,9 @@ jobs:
             - name: Deploy
               run: |
                   docker build -t frontend-service .
+
+                  mkdir -p ~/.docker/cli-plugins/
+                  curl -SL https://github.com -o ~/.docker/cli-plugins/docker-compose
+                  chmod +x ~/.docker/cli-plugins/docker-compose
+
                   cd ../../deploy && docker-compose up --no-deps -d frontend-service
