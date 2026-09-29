@@ -109,6 +109,5 @@ jobs:
               run: |
                   docker build -t frontend-service .
                   cd ../../deploy
-                  docker compose up frontend-service
                   docker --help
-                  
+                  docker-compose up frontend-service
