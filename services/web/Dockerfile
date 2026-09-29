@@ -2,11 +2,11 @@ FROM dh-mirror.gitverse.ru/library/node:22.12.0-alpine AS builder
 
 WORKDIR /app
 
-COPY package*.json ./
+COPY ./services/web/package*.json ./
 
 RUN npm ci
 
-COPY . ./
+COPY ./services/web ./
 
 RUN npm run build
 
