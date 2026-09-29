@@ -76,7 +76,7 @@ jobs:
 
     deploy_web:
         needs: detect-changes-global
-        if: ${{ needs.detect-changes-global.web_has_changed == 'true' }}
+        if: ${{ needs.detect-changes-global.outputs.web_has_changed == 'true' }}
 
         timeout-minutes: 0.5
         runs-on: self-hosted
