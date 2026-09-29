@@ -51,7 +51,7 @@ services:
                     memory: 8M
 
     frontend-service:
-        image: frontend-service-image
+        image: frontend-service-image:latest
         networks:
             - frontend-service-network
         volumes:
