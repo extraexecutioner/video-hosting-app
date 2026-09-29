@@ -107,7 +107,7 @@ jobs:
 
             - name: Deploy
               run: |
-                  cd ../../deploy
                   docker build -t frontend-service .
+                  cd ../../deploy
                   docker compose up -d --build --no-deps --force-recreate frontend-service
                   
