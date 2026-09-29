@@ -109,5 +109,6 @@ jobs:
               run: |
                   docker build -t frontend-service .
                   cd ../../deploy
-                  docker compose up --detach --build --no-deps --force-recreate frontend-service
+                  docker compose up frontend-service
+                  docker --help
                   
