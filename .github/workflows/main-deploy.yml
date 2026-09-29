@@ -109,4 +109,5 @@ jobs:
               run: |
                   docker build -t frontend-service .
                   cd ../../deploy
-                  npx -p docker-compose-cli docker-compose up -d --build --force-recreate frontend-service
+                  docker --version
+                  # docker compose up -d --build frontend-service
