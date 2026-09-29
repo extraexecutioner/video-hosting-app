@@ -108,4 +108,4 @@ jobs:
             - name: Deploy
               run: |
                   docker build -t frontend-service .
-                  docker compose up -d frontend-service
+                  docker compose up --force-recreate frontend-service
