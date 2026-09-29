@@ -99,7 +99,7 @@ jobs:
               run: cd services/web && npm audit --audit-level=high
             
             - name: Linter Check
-              run: npm run lint
+              run: cd services/web && npm run lint
 
             - name: Deploy
               run: |
