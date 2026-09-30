@@ -103,11 +103,5 @@ jobs:
 
             - name: Deploy
               run: |
-                  docker build -t frontend-service .
-                  rm -f /home/runner/.docker/cli-plugins/docker-compose
-
-                  mkdir -p /home/runner/.docker/cli-plugins/
-                  curl -SL "https://github.com" -o /home/runner/.docker/cli-plugins/docker-compose
-                  chmod +x /home/runner/.docker/cli-plugins/docker-compose
-
-                  docker compose -f "${{ github.workspace }}/deploy/docker-compose.yml" up --no-deps -d frontend-service
+                  docker build -t frontend-service ./services/web
+                  docker compose up --build --no-deps -d frontend-service
