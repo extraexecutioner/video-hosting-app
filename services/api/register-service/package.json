@@ -1,0 +1,28 @@
+{
+  "name": "register-service",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "build": "esbuild src/index.ts --bundle --platform=node --target=node24 --format=cjs --minify --tree-shaking=true --outfile=dist/bundle.cjs"
+  },
+  "keywords": [],
+  "type": "commonjs",
+  "devDependencies": {
+    "@tsconfig/node-lts": "^24.0.1",
+    "@types/express": "^5.0.6",
+    "@types/jsonwebtoken": "^9.0.10",
+    "@types/node": "^26.6.3",
+    "@types/pg": "^8.23.1",
+    "esbuild": "^0.28.2",
+    "jsonwebtoken": "^9.0.3",
+    "tsx": "^4.23.15",
+    "typescript": "^7.0.2"
+  },
+  "dependencies": {
+    "crypto": "^1.0.1",
+    "express": "^5.2.1",
+    "pg": "^8.23.1",
+    "zod": "^4.6.5"
+  }
+}

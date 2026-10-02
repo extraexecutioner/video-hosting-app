@@ -103,5 +103,5 @@ jobs:
 
             - name: Deploy
               run: |
-                  docker build -t frontend-service-image ./services/web
-                  docker run -d --name frontend-service frontend-service-image
+                  docker build -t frontend-service ./services/web
+                  docker compose up --build --no-deps -d frontend-service
