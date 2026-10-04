@@ -18,6 +18,8 @@ RUN apk add curl
 
 COPY --from=builder /app/dist/bundle.cjs ./
 
+COPY --from=builder /app/src/postgres-sql ./postgres-sql
+
 EXPOSE 5000
 
 USER bun

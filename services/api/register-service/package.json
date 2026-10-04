@@ -10,6 +10,7 @@
   "type": "commonjs",
   "devDependencies": {
     "@tsconfig/node-lts": "^24.0.1",
+    "@types/bun": "^1.4.2",
     "@types/express": "^5.0.6",
     "@types/jsonwebtoken": "^9.0.10",
     "@types/node": "^26.6.3",

@@ -2,7 +2,8 @@ import express, { type Request, type Response, Router } from 'express'
 import http from 'http'
 
 import PostgresDatabase, { type PostgresDatabaseConfig } from './postgres-handler'
-import { checkIfUserIsLogged, register, registerMiddleware } from './handler'
+import { register, registerMiddleware } from './user-interaction-at-starting-menu/register'
+import { checkIfUserIsLogged } from './user-interaction-at-starting-menu/global'
 
 export default class Server {
     #app: express.Express = express()
@@ -16,7 +17,6 @@ export default class Server {
         router.post("/auths", registerMiddleware, register)
         
         this.#app.get("/healthchecks", (_: Request, response: Response) => {
-            console.log(`Got healthcheck!`)
             return response.status(204).end()
         })
 
@@ -28,10 +28,11 @@ export default class Server {
     }
 
     async #setup() {
-        // this.#database = new PostgresDatabase()
-        // await (this.#database as PostgresDatabaseConfig).init()
-
+        this.#app.use(express.json())
         this.#serverSignalsDetector()
+
+        this.#database = new PostgresDatabase()
+        await (this.#database as PostgresDatabaseConfig).init()
 
         this.#server.listen(Number(process.env.SERVER_PORT), "0.0.0.0", () => [
             console.log(`Server is running successfully!`)
@@ -39,7 +40,7 @@ export default class Server {
     }
 
     public constructor() { 
+        this.#setup()
         this.#setRoutes()
-        this.#setup() 
     }
 }

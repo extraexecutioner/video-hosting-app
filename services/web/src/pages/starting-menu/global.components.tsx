@@ -1,5 +1,12 @@
 import { useNavigate } from 'react-router-dom'
 
+import sendRegisterRequest from './register-menu/handler'
+import sendLoginRequest from './login-menu/handler'
+
+import { getInputLimit } from './global.handler'
+
+type InputFieldConfig = { status: "register" | "login" }
+
 export function MainHeaderInfoField({status}: { status: "register" | "login" }): React.JSX.Element {
     const navigate = useNavigate()
 
@@ -21,51 +28,45 @@ export function MainHeaderInfoField({status}: { status: "register" | "login" }):
     )
 }
 
-export function InputField({status}: { status: "register" | "login" }): React.JSX.Element {
-    const limitInputSymbols = (event: React.ChangeEvent<HTMLInputElement, HTMLInputElement>) => {
-        let limit: 12 | 16 | 36
-        const currentId = event.currentTarget.id
+function limitInputSymbols(event: React.ChangeEvent <HTMLInputElement, HTMLInputElement>) {
+    const currentId = event.currentTarget.id
 
-        if (
-            !currentId || 
-            currentId !== "password-input" &&
-            currentId !== "username-input" &&
-            currentId !== "email-input"
-        ) { 
-            throw new Error(`No Id provided, error!`) 
-        } else {
-            switch (currentId) {
-                case "username-input":
-                    limit = 12
-                    break
-                case "password-input":
-                    limit = 16
-                    break
-                case "email-input": 
-                    limit = 36
-                    break
-            }
+    if (
+        !currentId || 
+        currentId !== "password-input" &&
+        currentId !== "username-input" &&
+        currentId !== "email-input"
+    ) { 
+        throw new Error(`No Id provided, error!`) 
+    } else {
+        const limit: 12 | 16 | 36 = getInputLimit(currentId)
 
-            const currentTarget =  event.currentTarget
-            currentTarget.value = currentTarget.value.trim()
+        const currentTarget =  event.currentTarget
+        currentTarget.value = currentTarget.value.trim()
 
-            const currentTargetValue = currentTarget.value
+        const currentTargetValue = currentTarget.value
 
-            if (currentTargetValue.length > limit) {
-                currentTarget.value = currentTarget.value.slice(0, limit)
-            }
+        if (currentTargetValue.length > limit) {
+            currentTarget.value = currentTarget.value.slice(0, limit)
         }
     }
+}
+
+export function InputField({status}: InputFieldConfig): React.JSX.Element {
+    const navigate = useNavigate()
+    const submitFunc = status === "register" ? sendRegisterRequest : sendLoginRequest
 
     return (
         <main className="input-field">
-            <form>
+            <form onSubmit={(event) => { event.preventDefault(); navigate("/loading", { replace: true }); submitFunc(event) }}>
                 <p>{status} here:</p>
 
                 <label htmlFor="username-input">username:</label>
                 <input 
                     id="username-input" 
                     type="text"
+                    autoComplete="off"
+                    name="username"
                     placeholder="0-9"
                     onChange={limitInputSymbols}
                 />
@@ -74,6 +75,8 @@ export function InputField({status}: { status: "register" | "login" }): React.JS
                 <input 
                     id="password-input" 
                     type="password"
+                    autoComplete="off"
+                    name="password"
                     placeholder="0-9, 8 min length, 12 max"
                     onChange={limitInputSymbols}
                 />
@@ -84,6 +87,8 @@ export function InputField({status}: { status: "register" | "login" }): React.JS
                         <input 
                             id="email-input" 
                             type="text"
+                            name="email"
+                            autoComplete="off"
                             placeholder="0-9@gmail.com"
                             onChange={limitInputSymbols}
                         />
