@@ -9,7 +9,18 @@ interface RegisterStatistics {
     email: string;
 }
 
-type ServerDataResponse = { fail: false, errorMsg: null } | { fail: true, errorMsg: string }
+interface LocalStorageEmailCodeValues {
+    email_code_time_origin: number;
+    email_attempts_left: number;
+    email_code_sending_message: string;
+}
+
+export type RegisterRequestResponse = [true, LocalStorageEmailCodeValues] | [false, null]
+
+type ServerDataResponse = 
+    { fail: false, errorMsg: null, storage: LocalStorageEmailCodeValues } | 
+    { fail: true, errorMsg: string }
+
 type StatisticsResult = [RegisterStatistics, null] | [null, string]
 
 function getStatistics(event: React.SubmitEvent <HTMLFormElement>): StatisticsResult {
@@ -40,13 +51,15 @@ function getStatistics(event: React.SubmitEvent <HTMLFormElement>): StatisticsRe
     return [elements, null]
 }
 
-export default async function sendRegisterRequest(event: React.SubmitEvent <HTMLFormElement>) {
+export default async function sendRegisterRequest(event: React.SubmitEvent <HTMLFormElement>): Promise <RegisterRequestResponse> {
     event.preventDefault()
     const [requestBody, invalidValue] = getStatistics(event)
 
     if (invalidValue || !requestBody) {
         console.error(invalidValue)
-        return errorMsgState![1](invalidValue)
+        errorMsgState![1](invalidValue)
+
+        return [false, null]
     }
 
     try {
@@ -61,16 +74,23 @@ export default async function sendRegisterRequest(event: React.SubmitEvent <HTML
             const serverDataResponse = await serverResponse.json() as ServerDataResponse
             
             if (!serverResponse.ok || serverDataResponse.fail) {
+                console.error(`Failed To Fetch the server: ${serverDataResponse.errorMsg}`)
                 errorMsgState![1](`Failed To Fetch the server: ${serverDataResponse.errorMsg}`)
-                return console.error(`Failed To Fetch the server: ${serverDataResponse.errorMsg}`)
-            }
-        } else {
-            errorMsgState![1](`Failed To Fetch the server!`)
-            return console.error(`Failed To Fetch the server!`)
-        }
 
+                return [false, null]
+            }
+
+            return [true, serverDataResponse.storage]
+        } else {
+            console.error(`Failed To Fetch the server!`)
+            errorMsgState![1](`Failed To Fetch the server!`)
+
+            return [false, null]
+        }
     } catch (errorMsg: unknown) {
         console.error(`Failed to fetch server: ${errorMsg}`)
-        return errorMsgState![1]("Failed To Fetch the server!")
+        errorMsgState![1]("Failed To Fetch the server!")
+
+        return [false, null]
     }
 }

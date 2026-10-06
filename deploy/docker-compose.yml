@@ -89,9 +89,12 @@ services:
             - postgres-service-network
         security_opt:
             - no-new-privileges:true
+        volumes:
+            - ../services/api/register-service/dist/bundle.cjs:/app/bundle.cjs:ro
         env_file:
             - ./env/postgres.env
             - ../services/api/register-service/.env
+            - ../services/api/register-service/email-passwords.env
         depends_on:
             postgres-service:
                 condition: service_healthy
@@ -129,12 +132,6 @@ services:
 
     postgres-service:
         image: dockerhub.timeweb.cloud/library/postgres:17-alpine
-        command: >
-            sh -c "docker-entrypoint.sh postgres &
-                until pg_isready -q; do sleep 1; done;
-                psql -U $$POSTGRES_USER -d postgres -c 'CREATE DATABASE users;';
-                psql -U $$POSTGRES_USER -d users -c 'CREATE TABLE users (id SERIAL, name TEXT);';
-                wait"
         networks:
             - postgres-service-network
         env_file:

@@ -19,13 +19,14 @@ CREATE OR REPLACE FUNCTION init_emailcodes_database()
             CREATE TABLE IF NOT EXISTS "emailcodes" (
                 "username" VARCHAR(12) NOT NULL,
                 "email" VARCHAR(255) NOT NULL,
-                "targetCode" INT NOT NULL,
-                "attempts" INT NOT NULL,
-                "createdAt" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
+                "password" VARCHAR(255) NOT NULL,
+                "target_code" INT NOT NULL,
+                "attempts" INT DEFAULT(3) NOT NULL,
+                "created_at" BIGINT,
 
-                CONSTRAINT "users_username_unique" UNIQUE ("username"),
-                CONSTRAINT "users_username_min_length" CHECK (length("username") >= 6),
-                CONSTRAINT "email_ends_with" CHECK ("email" LIKE '%@gmail.com')
+                CONSTRAINT "emailcodes_username_unique" UNIQUE ("username"),
+                CONSTRAINT "emailcodes_username_min_length" CHECK (length("username") >= 6),
+                CONSTRAINT "emailcodes_email_ends_with" CHECK ("email" LIKE '%@gmail.com')
             );
     END;
 $$ LANGUAGE plpgsql;

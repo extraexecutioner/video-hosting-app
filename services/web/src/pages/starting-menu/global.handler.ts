@@ -7,7 +7,17 @@ interface NeededInputs {
 type InputTypes = "username-input" | "password-input" | "email-input"
 
 export default async function checkIfUserIsAuthorized(): Promise <boolean> {
-    return false
+    try {
+        const serverResponse = await fetch("/users/auths", {
+            method: "HEAD",
+            credentials: "include"
+        })
+
+        return serverResponse.ok
+    } catch (error: unknown) {
+        console.error(`Failed to check if user is authorized!`)
+        return false
+    }
 }
 
 export function checkIfInputsValid(inputs: NeededInputs): [true, null] | [false, string] {

@@ -73,11 +73,7 @@ export function registerMiddleware(request: Request, response: Response, next: N
 
 async function hashPassword(password: string): Promise <[true, string] | [false, null]> {
     try {
-        return [true, await Bun.password.hash(password, {
-            algorithm: "argon2id",
-            memoryCost: 32000,
-            timeCost: 3
-        })]
+        return [true, await Bun.password.hash(password, { algorithm: "argon2id", memoryCost: 12288, timeCost: 1 })]
     } catch (error: unknown) {
         console.error(`Failed to hash password with argon2: ${error}`)
         return [false, null]
@@ -95,5 +91,5 @@ export async function register(request: Omit <Request, "body"> & { body: Registe
         })
     }
 
-    registerEmailCode(username, email, response)
+    registerEmailCode(username, hashedPassword, email, response)
 }

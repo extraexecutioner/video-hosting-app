@@ -1,15 +1,19 @@
 import Server from './server'
 
 class Setup {
+    server: Server
     #neededEnvironment: string[] = [
         "REFRESH_TOKEN_SECRET",
         "ACCESS_TOKEN_SECRET",
+        "EMAIL_CODE_TOKEN_SECRET",
         "POSTGRES_PORT",
         "POSTGRES_HOST",
         "POSTGRES_USER",
         "POSTGRES_PASSWORD",
         "POSTGRES_DB",
-        "SERVER_PORT"
+        "SERVER_PORT",
+        "NODEMAILER_APP_USER",
+        "NODEMAILER_APP_PASSWORD"
     ]
 
     #setupEnvInit() {
@@ -22,8 +26,11 @@ class Setup {
 
     public constructor() {
         this.#setupEnvInit()
-        new Server()
+        this.server = new Server()
     }
 }
 
-new Setup()
+const setup = new Setup()
+const server = setup.server
+
+export default server

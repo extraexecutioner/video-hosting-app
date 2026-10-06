@@ -1,6 +1,6 @@
 import { useNavigate } from 'react-router-dom'
 
-import sendRegisterRequest from './register-menu/handler'
+import sendRegisterRequest, { type RegisterRequestResponse } from './register-menu/handler'
 import sendLoginRequest from './login-menu/handler'
 
 import { getInputLimit } from './global.handler'
@@ -54,7 +54,22 @@ function limitInputSymbols(event: React.ChangeEvent <HTMLInputElement, HTMLInput
 
 export function InputField({status}: InputFieldConfig): React.JSX.Element {
     const navigate = useNavigate()
-    const submitFunc = status === "register" ? sendRegisterRequest : sendLoginRequest
+
+    const submitFunc = async (event: React.SubmitEvent<HTMLFormElement>) => {
+        const SendRequestFunc = status === "register" ? 
+            sendRegisterRequest as (event: React.SubmitEvent<HTMLFormElement>) => Promise <RegisterRequestResponse> : 
+            sendLoginRequest as (event: React.SubmitEvent<HTMLFormElement>) => Promise <RegisterRequestResponse>
+
+        const [serverResponseSuccessed, localStorageValues] = await SendRequestFunc(event)
+
+        if (serverResponseSuccessed) {
+            for (const [key, name] of Object.entries(localStorageValues)) {
+                localStorage.setItem(key, name)
+            }
+
+            navigate("/register/email-code", { replace: true })
+        }
+    }
 
     return (
         <main className="input-field">

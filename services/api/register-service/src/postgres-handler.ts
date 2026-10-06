@@ -3,13 +3,11 @@ import { Pool } from 'pg'
 import path from 'path'
 import fs from 'fs/promises'
 
-type SqlUserInteractionResults = [boolean, false] | [false, true]
-
 export interface PostgresDatabaseConfig {
     init: () => Promise <void>,
-    registerUser: (username: string, password: string, email: string) => Promise <SqlUserInteractionResults>,
-    registerUserEmailCode: (username: string, email: string, targetCode: number) => Promise <SqlUserInteractionResults>,
-    checkIfUserExists: (username: string) => Promise <SqlUserInteractionResults>
+    registerUserEmailCode: (username: string, password: string, email: string, currentAt: number, targetCode: number) => Promise <boolean>,
+    checkIfCodeEmailIsValidAndRegister: (username: string, code: number, currentTime: number) => Promise <boolean>,
+    checkIfUserExists: (username: string) => Promise <boolean>
 }
 
 const postgresSqlFilesPath = path.join(__dirname, "postgres-sql")
@@ -19,10 +17,16 @@ export default class PostgresDatabase implements PostgresDatabaseConfig {
 
     async #readPostgresFiles(paths: string[]) {
         try {
-            await Promise.all(paths.map(async (path) => {
+            for (const path of paths) {
                 const content = await fs.readFile(path, 'utf-8')
                 await this.#pool.query(content)
-            }))
+
+                if (path === "/app/postgres-sql/init.sql") { 
+                    await Promise.all(["users", "emailcodes"].map(async (val) => {
+                        await this.#pool.query(`SELECT init_${val}_database();`) 
+                    })) 
+                }
+            }
         } catch (error: unknown) {
             throw new Error(`Failed to read postgres files: ${error}!`)
         }
@@ -34,10 +38,9 @@ export default class PostgresDatabase implements PostgresDatabaseConfig {
 
             await this.#readPostgresFiles([
                 path.join(postgresSqlFilesPath, "init.sql"),
-                path.join(postgresSqlFilesPath, "user-interaction.sql"),
+                path.join(postgresSqlFilesPath, "user-interaction.sql")
             ])
-
-            await this.#pool.query(`SELECT init_users_database();`)
+            
             await this.#pool.query(`SELECT init_emailcodes_database();`)
         } catch (error: unknown) {
             if (error instanceof AggregateError) {
@@ -48,29 +51,36 @@ export default class PostgresDatabase implements PostgresDatabaseConfig {
         }
     }
 
-    public async checkIfUserExists(username: string): Promise <SqlUserInteractionResults> {
-        return [false, true]
+    public async checkIfUserExists(username: string): Promise <boolean> {
+        return false
     }
 
-    public async registerUserEmailCode(username: string, email: string, targetCode: number): Promise <SqlUserInteractionResults> {
+    public async checkIfCodeEmailIsValidAndRegister(username: string, code: number, currentTime: number): Promise <boolean> {
         try {
-            const queryResponse = await this.#pool.query(`SELECT insert_user_into_emailcodes($1, $2, $3)`, [username, email, targetCode])
-            return [queryResponse.rows[0], false]
+            const queryResponse = await this.#pool.query(
+                `SELECT is_user_email_code_right($1, $2, $3)`, 
+                [username, code, currentTime]
+            )
+
+            return queryResponse.rows[0]
+        } catch (error: unknown) {
+            console.error(`Failed to check if email code is valid: ${error}`)
+            return false
+        }
+    }
+
+    public async registerUserEmailCode(username: string, password: string, email: string, currentAt: number, targetCode: number): Promise <boolean> {
+        try {
+            await this.#pool.query(
+                `SELECT insert_user_into_emailcodes($1, $2, $3, $4, $5)`, 
+                [username, password, email, currentAt, targetCode]
+            )
+
+            return false
         } catch (error: unknown) {
             console.error(`Failed to register user emailcode: ${error}`)
-            return [false, true]
+            return true
         }
-    }
-
-    public async registerUser(username: string, password: string, email: string): Promise <SqlUserInteractionResults> {
-        try {
-            const queryResponse = await this.#pool.query(`SELECT `)
-        } catch (error: unknown) {
-            console.error(`Failed to register user: ${error}`)
-            return [false, true]
-        }
-
-         return [false, true]
     }
     
     public constructor() {
